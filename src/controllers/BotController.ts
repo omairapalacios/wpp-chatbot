@@ -1,12 +1,13 @@
 import { Request, Response } from "express";
 import { Controller, Post } from "@overnightjs/core";
-import { Logger } from "@overnightjs/logger";
 import { sendMessage, sendVerificationCode, verifyCode } from "../utils/twilio";
 
 import { runQuery } from "../utils/dialogflow";
 import { verifyIdentity } from "../models/database/functions"
 
 import { User } from "../models/interfaces/user"
+
+const storage = require('node-persist');
 
 let user : User = { 
   document:'',
@@ -26,6 +27,7 @@ export class BotController {
     const { Body, To, From } = request.body;
     let message = '';
     try {
+      await storage.init();
       const dialogflow = await runQuery(Body, From)
       // Enviamos mensaje a dialogflow y esperamos que coincida con algun intento
       switch (dialogflow.intent.displayName) {
@@ -36,8 +38,11 @@ export class BotController {
           user.cellphone = cellphone;
           user.status = status;
           user.document = document;
-          console.log('CELLPHONE',cellphone);
-          console.log('USER FULL',user);
+          await storage.setItem('user', user)
+          await storage.setItem('from', From)
+          await storage.setItem('to', To)
+          /* console.log('CELLPHONE',cellphone);
+          console.log('USER FULL',user); */
             if (cellphone) {    
               message = `por favor ingrese el código de verificación enviado al número de celular registrado`; 
               await sendMessage(From, To, message);
@@ -50,12 +55,14 @@ export class BotController {
           break;
         }
         case "usuarioIngresaCodigo": {
-          console.log('CELLPHONEeeee', user.cellphone);
-          console.log('Bodyyy',Body);
+          /* console.log('CELLPHONE', user.cellphone);
+          console.log('BODY',Body); */
           
           const status = await verifyCode(user.cellphone, Body)
           if (status === 'approved') {
-            message = `Bienvenido(a) ${user.name} 😊`;
+            message = `Bienvenido(a) *${user.name}* 😊\n¡Estoy aquí para ayudarte!`;
+            await sendMessage(From, To, message);
+            message = `Por favor indicame el _mes_ de la boleta que deseas consultar`;
             await sendMessage(From, To, message);
           }
           else {

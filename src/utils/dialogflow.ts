@@ -29,6 +29,6 @@ export const runQuery = async (query: string, number: string) : Promise<any> => 
       const result = responses[0].queryResult;
       return result;
     } catch (error) {
-      
+      throw Error(error);
     }
 };

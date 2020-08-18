@@ -15,6 +15,16 @@ export const sendMessage = async (to: string, from: string, body: string) => {
   }
 };
 
+export const sendMessageMedia = async (to: string, from: string, mediaUrl: string) => {
+
+  try {
+    await client.messages.create({to,from,body:"boleta-konecta", mediaUrl})
+  }
+  catch(error) {
+    throw Error(error);
+  }
+};
+
 export const sendVerificationCode = async (to: string) => {
   try {
     await client.verify.services(sid)
@@ -26,8 +36,6 @@ export const sendVerificationCode = async (to: string) => {
   }
 };
 export const verifyCode = async (to: string, code: string) => {
-  console.log(to, code);
-  
   try{
     const result = await client.verify.services(sid)
           .verificationChecks
