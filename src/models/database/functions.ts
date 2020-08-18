@@ -33,7 +33,7 @@ export const verifyIdentity = async (document: string) => {
   }
 }
 
-export const getBoletaByPeriode = async (month: string, document: string) => { 
+export const getBoletaByPeriod = async (month: string, document: string) => { 
   const year = new Date().getFullYear()
   const id = `${month}${year}${document}`
   

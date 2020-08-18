@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Controller, Post } from "@overnightjs/core";
-import { getBoletaByPeriode } from "../models/database/functions"
+import { getBoletaByPeriod } from "../models/database/functions"
 import { sendMessage, sendMessageMedia } from "../utils/twilio";
 
 const storage = require('node-persist');
@@ -21,7 +21,7 @@ export class DialogflowWebhookController {
         let to  = await storage.getItem('to');
         let from = await storage.getItem('from');
 
-        const link = await getBoletaByPeriode(mes, document);
+        const link = await getBoletaByPeriod(mes, document);
 
         if (link) {    
           await sendMessageMedia(from, to, link);
