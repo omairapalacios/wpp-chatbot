@@ -4,3 +4,4 @@ package-lock.json
 nodemailer.ts
 *.txt
 .env
+.node-persist/storage
