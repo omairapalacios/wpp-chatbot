@@ -8,130 +8,70 @@ import { verifyIdentity } from "../models/database/functions"
 
 import { User } from "../models/interfaces/user"
 
-let dataUser : User = { 
+let user : User = { 
   document:'',
   name: '',
   lastname: '',
   cellphone: '',
   email:'',
   status: 'inactivo'}
-
 @Controller("api/bot")
 export class BotController {
+  
   @Post()
-  private postMessage(request: Request, response: Response) {
-    // Obtenemos el mensaje :Body, el numero desde el cual lo enviamos : To , y el número del cliente que lo recibira: From.
+  private async postMessage(request: Request, response: Response) {
+      /* Obtenemos el mensaje :Body,
+      El numero desde el cual lo enviamos : To ,
+      El número del cliente que lo recibira: From. */
     const { Body, To, From } = request.body;
-    let message: string;
-    // Enviamos mensaje a dialogflow y esperamos que coincida con algun intento
-    runQuery(Body, From)
-      .then((result: any) => {
-        // Twilio nos envia la respuesta de dialogflow
-        switch (result.intent.displayName) {
-          case "usuarioIngresaCodigo": {
-            verifyCode(dataUser.cellphone,Body)
-            .then((res) => {
-              if (res === 'approved') {
-                message = `Bienvenido(a) ${dataUser.name} 😊`;
-              sendMessage(From, To, message)
-              .then(res => {
-                console.log('respuesta al usuario', res);
-              })
-              .catch(error => {
-                console.error("ocurrió el siguiente error enviar código", error);
-                Logger.Err(error);
-              });
-              }
-              else {
-                message = `Codigo de verificación incorrecto`;
-                sendMessage(From, To, message)
-                .then(res => {
-                  console.log('respuesta al usuario', res);
-                  
-                })
-                .catch(error => {
-                  console.error("ocurrió el siguiente error enviar exito", error);
-                  Logger.Err(error);
-                });
-              }
-            })
-            .catch(error => {
-              console.error("ocurrió en error en verificar codigo", error);
-              message = `Codigo de verificación incorrecto`;
-              sendMessage(From, To, message)
-              .then(res => {
-                console.log('respuesta al usuario', res);
-              })
-              .catch(error => {
-                console.error("ocurrió el siguiente error no enviar ", error);
-                Logger.Err(error);
-              });
-            });
-          }
-          case "usuarioIngresaIdentificación": {
-      
-            if ( dataUser.status !== 'activo') {
-              verifyIdentity(Body,To, From)
-              .then((querySnapshot) => {
-                if(querySnapshot.docs.length > 0) {
-                  querySnapshot.forEach((doc: any) =>  {
-                    dataUser.cellphone = doc.data().cellphone;
-                    dataUser.status = 'activo';
-                    message = `por favor ingrese el código de verificación enviado al número de celular registrado`;
-                    sendMessage(From, To, message)
-                    .then(res => {
-                      console.log('respuesta al usuario', res);
-                    })
-                    .catch(error => {
-                      console.error("ocurrió el siguiente error", error);
-                      Logger.Err(error);
-                    });
-                    dataUser.cellphone = doc.data().cellphone;
-                    dataUser.name = doc.data().name;
-                    dataUser.status = 'activo';
-                    sendVerificationCode(doc.data().cellphone)
-                      .then((res) => {
-                        console.log('se envio codigo por sms', res);
-                      })
-                      .catch(error => {
-                        console.error("ocurrió en error en enviar el código", error);
-                      });
-                });
-                }
-                else {
-                  message = `Lo sentimos, usted no se encuentra registrado`;
-                  sendMessage(From, To, message)
-                  .then(res => {
-                    console.log('respuesta al usuario', res);
-                  })
-                  .catch(error => {
-                    console.error("ocurrió el siguiente error", error);
-                    Logger.Err(error);
-                  });
-                }
-                
-            })
-            .catch(function(error) {
-                console.log("Error getting documents: ", error);
-            });
-              
+    let message = '';
+    try {
+      const dialogflow = await runQuery(Body, From)
+      // Enviamos mensaje a dialogflow y esperamos que coincida con algun intento
+      switch (dialogflow.intent.displayName) {
+
+        case "usuarioIngresaIdentificación": {
+          const { name, cellphone, status, document}  = await verifyIdentity(Body);
+          user.name = name;
+          user.cellphone = cellphone;
+          user.status = status;
+          user.document = document;
+          console.log('CELLPHONE',cellphone);
+          console.log('USER FULL',user);
+            if (cellphone) {    
+              message = `por favor ingrese el código de verificación enviado al número de celular registrado`; 
+              await sendMessage(From, To, message);
+              await sendVerificationCode(cellphone);
             }
-          }
+            else {
+              message = `Lo sentimos, usted no se encuentra registrado`;
+              await sendMessage(From, To, message);
             }
+          break;
+        }
+        case "usuarioIngresaCodigo": {
+          console.log('CELLPHONEeeee', user.cellphone);
+          console.log('Bodyyy',Body);
           
-        sendMessage(From, To, result.fulfillmentText)
-          .then(res => {
-            console.log('respuesta al usuario', res);
-          })
-          .catch(error => {
-            console.error("ocurrió el siguiente error", error);
-            Logger.Err(error);
-          });
-      })
-      .catch(error => {
-        console.error("ocurrió el siguiente error", error);
-        Logger.Err(error);
-      });
-    return response.status(200).send("SUCCESS");
+          const status = await verifyCode(user.cellphone, Body)
+          if (status === 'approved') {
+            message = `Bienvenido(a) ${user.name} 😊`;
+            await sendMessage(From, To, message);
+          }
+          else {
+            message = `Codigo de verificación incorrecto`;
+            await sendMessage(From, To, message);
+          }
+          break;
+        }
+        default:
+          await sendMessage(From, To, dialogflow.fulfillmentText);
+            
+      }
+      return response.status(200)
+    }
+    catch(error){
+      throw Error(error);
+    }
   }
 }

@@ -8,14 +8,12 @@ const sessionClient = new dialogflow.SessionsClient({
 });
 const projectId: string = process.env.DIALOGFLOW_PROJECT_ID!;
 
-export const runQuery = (query: string, number: string) => {
-  return new Promise(async (resolve, reject) => {
+export const runQuery = async (query: string, number: string) : Promise<any> => {
     try {
       // Identificador unico de sesión
       const sessionId = number;
       // Crear una nueva sesión
       const sessionPath = sessionClient.sessionPath(projectId, sessionId);
-
       const request = {
         session: sessionPath,
         queryInput: {
@@ -26,15 +24,11 @@ export const runQuery = (query: string, number: string) => {
           }
         }
       };
-
       // Enviar request
       const responses = await sessionClient.detectIntent(request);
-
       const result = responses[0].queryResult;
-
-      resolve(result);
+      return result;
     } catch (error) {
-      reject(error);
+      
     }
-  });
 };
