@@ -25,11 +25,14 @@ export class BotController {
       El numero desde el cual lo enviamos : To ,
       El número del cliente que lo recibira: From. */
     const { Body, To, From } = request.body;
+    console.log(Body);
+    
     let message = '';
     try {
-      await storage.init();
+      await storage.init({expiredInterval : 3 * 60 * 1000});
       const dialogflow = await runQuery(Body, From)
       // Enviamos mensaje a dialogflow y esperamos que coincida con algun intento
+      console.log(dialogflow.intent.displayName);
       switch (dialogflow.intent.displayName) {
 
         case "usuarioIngresaIdentificación": {
@@ -72,8 +75,19 @@ export class BotController {
           break;
         }
         default:
-          await sendMessage(From, To, dialogflow.fulfillmentText);
-            
+          if (dialogflow.fulfillmentText) {
+            await sendMessage(From, To, dialogflow.fulfillmentText);
+          } 
+          /* user = await storage.getItem('user');
+          if(user){
+            if (dialogflow.fulfillmentText) {
+              await sendMessage(From, To, dialogflow.fulfillmentText);
+            } 
+          }
+          else {
+            message = `No has iniciado sesión o tu sesión a finalizado. Por favor ingresa tu documento de identidad para poder ayudarte 😉`;
+            await sendMessage(From, To, message);
+          } */
       }
       return response.status(200)
     }
@@ -82,3 +96,15 @@ export class BotController {
     }
   }
 }
+
+
+/* const MessagingResponse = require('twilio').twiml.MessagingResponse;
+
+
+const response = new MessagingResponse();
+const message = response.message();
+message.body('Hello World!');
+response.redirect('https://demo.twilio.com/welcome/sms/');
+
+console.log(response.toString());
+ */

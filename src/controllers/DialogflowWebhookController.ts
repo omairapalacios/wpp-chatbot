@@ -10,31 +10,45 @@ export class DialogflowWebhookController {
   private async handleWebhook(request: Request, response: Response) {
     // Obtenemos resultados de dialogflow
     const { queryResult } = request.body;
-    const { parameters } = queryResult;
+    const { parameters, queryText } = queryResult;
     let message = '';
-
-    switch (queryResult.intent.displayName) {
+    let link = '';
+    let to  = await storage.getItem('to');
+    let from = await storage.getItem('from');
+    let user = await storage.getItem('user');
+    if(user){
+      console.log('user',user);
+      
+      switch (queryResult.intent.displayName) {
   
-      case "usuarioIngresaMes": {
-        const { mes } = parameters;
-        let { document } = await storage.getItem('user');
-        let to  = await storage.getItem('to');
-        let from = await storage.getItem('from');
+        case "usuarioIngresaMes": {
+          console.log('queryResult',queryResult);
+          console.log('queryResult',parameters);
+          const { mes } = parameters;
+          let { document } = await storage.getItem('user');
 
-        const link = await getBoletaByPeriod(mes, document);
-
-        if (link) {    
-          await sendMessageMedia(from, to, link);
-        }
-        else {
-          message = `Lo sentimos, aún no contamos con la boleta correspondiente a ese mes`;
+          message = `Buscaré tu boleta del mes ${queryText} 😉.Dame un momento por favor ⏳ ...`
           await sendMessage(from, to, message);
+          
+          link = await getBoletaByPeriod(mes, document);
+          if (link !== '') {    
+            await sendMessageMedia(from, to, link);
+          }
+          else {
+            message = `Lo siento, aún no contamos con la boleta correspondiente a ese mes`;
+            await sendMessage(from, to, message);
+          }
+        }
+        default: {
+          return response.status(200).send();
         }
       }
 
-      default: {
-        return response.status(200).send();
-      }
     }
+    else {
+      message = `No has iniciado sesión o tu sesión a finalizado. Por favor ingresa tu documento de identidad para poder ayudarte 😉`;
+      await sendMessage(from, to, message);
+    }
+    
   }
 }

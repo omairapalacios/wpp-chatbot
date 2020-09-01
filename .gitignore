@@ -1,6 +1,7 @@
 node_modules/
 credentials.json
 package-lock.json
+convert.ts
 nodemailer.ts
 *.txt
 .env

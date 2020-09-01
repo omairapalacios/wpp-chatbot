@@ -3,4 +3,4 @@ config();
 import { AppServer } from "./AppServer";
 // Instancia un nuevo servidor y llama al metodo start para levantarlo
 const appServer = new AppServer();
-appServer.start(3000);
+appServer.start(4000);

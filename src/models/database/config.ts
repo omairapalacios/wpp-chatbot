@@ -1,9 +1,9 @@
 const admin = require('firebase-admin');
-let serviceAccount = require('./credentials.json');
-
 admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
+  credential: admin.credential.cert(
+    JSON.parse(Buffer.from(`${process.env.SA_CLOUDFIRESTORE}`, 'base64').toString('ascii')))
 });
+
 
 let db = admin.firestore();
 module.exports = db;
