@@ -5,21 +5,19 @@ const sid = process.env.TWILIO_SMS_SID!;
 
 const client = new Twilio(accountSid, authToken);
 
-export const sendMessage = async (to: string, from: string, body: string) => {
+export async function sendMessage (to: string, from: string, body: string) {
 
   try {
     await client.messages.create({to,from,body})
   }
   catch(error) {
-    console.log('aqui autherror linea 14 tw', error);
-    
+    console.log('Error sendMessage', error);   
     throw Error(error);
   }
 };
 
-export const sendMessageMedia = async (to: string, from: string, mediaUrl: string) => {
-console.log('Media url', mediaUrl);
-
+export async function sendMessageMedia (to: string, from: string, mediaUrl: string) {
+console.log('Media URL', mediaUrl);
   try {
     await client.messages.create({to,from,body:"boleta-konecta", mediaUrl})
   }
@@ -28,7 +26,7 @@ console.log('Media url', mediaUrl);
   }
 };
 
-export const sendVerificationCode = async (to: string) => {
+export async function sendVerificationCode (to: string) {
   try {
     const result = await client.verify.services(sid)
     .verifications
@@ -39,17 +37,17 @@ export const sendVerificationCode = async (to: string) => {
     throw Error(error);
   }
 };
-export const verifyCode = async (to: string, code: string) => {
+export async function verifyCode(to: string, code: string) {
   try{
     const result = await client.verify.services(sid)
           .verificationChecks
           .create({to: to, code: code })
-    console.log('result de verificar codigo',result);
+    console.log('se verificó codigo',result);
     
     return result.status;
   }
   catch(error){
-    console.log('error al verificar codigo linea 48 tw', error);
+    console.log('error al verificar codigo', error);
     
     throw Error(error);
   }

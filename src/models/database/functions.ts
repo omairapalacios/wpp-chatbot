@@ -12,7 +12,7 @@ let user : User = {
     status: 'inactivo'
   }
 
-export const verifyIdentity = async (document: string) => { 
+export async function verifyIdentity(document: string){ 
   try {
     const query =  await db.collection('USERS')
     .where('document', '==', document )
@@ -33,7 +33,7 @@ export const verifyIdentity = async (document: string) => {
   }
 }
 
-export const getBoletaByPeriod = async (month: string, document: string) => { 
+export async function getBoletaByPeriod(month: string, document: string) { 
   console.log('month',month);
   console.log('document',document);
   const year = new Date().getFullYear()
