@@ -1,6 +1,6 @@
 # kami-chatbot 🤖📱
 
-Chatbot para whatsapp usando Nodejs, Twilio y Dialogflow que envía tus boletas de pago, verificando previamente tu identidad usando 2FA
+Chatbot para whatsapp usando Nodejs, Twilio y Dialogflow que envía tus boletas de pago, verificando previamente tu identidad usando 2FA.
 ## Temas aprendidos
 
 * Typescript/Nodejs
