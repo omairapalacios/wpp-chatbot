@@ -1,6 +1,6 @@
 # Kami-chatbot
 
-Chatbot para whatsapp usando Nodejs, Twilio y Dialogflow
+Chatbot para whatsapp usando Nodejs, Twilio y Dialogflow 🤖📱
 ## Temas aprendidos
 
 * Typescript/Nodejs
