@@ -34,25 +34,19 @@ export async function verifyIdentity(document: string){
 }
 
 export async function getBoletaByPeriod(month: string, document: string) { 
-  console.log('month',month);
-  console.log('document',document);
   const year = new Date().getFullYear()
   const id = `${month}${year}${document}`
-  console.log('id boleta', id);
-  
   try {
     link= '';
     const boleta = await db.collection('BOLETAS').doc(id)
     .get()
-    console.log('boleta', boleta);
     if (boleta.exists) {
       link = boleta.data().link_boleta;
-      console.log('link',link);
       return link;
-    } 
+    }
     else {
       return link;
-    } 
+    }
   }
     catch(error) {
       throw Error(error);

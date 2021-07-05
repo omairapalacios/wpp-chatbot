@@ -11,7 +11,6 @@ export async function runQuery (query: string, number: string) : Promise<any>  {
     try {
       // Identificador unico de sesión
       const sessionId = number;
-      console.log('session ID',sessionId);
       // Crear una nueva sesión
       const sessionPath = sessionClient.sessionPath(projectId, sessionId);
       const request = {
@@ -25,11 +24,7 @@ export async function runQuery (query: string, number: string) : Promise<any>  {
         }
       };
       // Enviar request
-      
       const responses = await sessionClient.detectIntent(request);
-
-
-      
       const result = responses[0].queryResult;
       return result;
     } catch (error) {

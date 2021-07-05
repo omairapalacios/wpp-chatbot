@@ -17,19 +17,12 @@ export class DialogflowWebhookController {
     let from = await storage.getItem('from');
     let user = await storage.getItem('user');
     if(user){
-      console.log('user',user);
-      
       switch (queryResult.intent.displayName) {
-  
         case "usuarioIngresaMes": {
-          console.log('queryResult',queryResult);
-          console.log('queryResult',parameters);
           const { mes } = parameters;
           let { document } = await storage.getItem('user');
-
           message = `Buscaré tu boleta del mes ${queryText} 😉.Dame un momento por favor ⏳ ...`
           await sendMessage(from, to, message);
-          
           link = await getBoletaByPeriod(mes, document);
           if (link !== '') {    
             await sendMessageMedia(from, to, link);

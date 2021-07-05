@@ -25,14 +25,11 @@ export class BotController {
       El numero desde el cual lo enviamos : To ,
       El número del cliente que lo recibira: From. */
     const { Body, To, From } = request.body;
-    console.log(Body);
-    
     let message = '';
     try {
       await storage.init({expiredInterval : 3 * 60 * 1000});
       const dialogflow = await runQuery(Body, From)
       // Enviamos mensaje a dialogflow y esperamos que coincida con algun intento
-      console.log(dialogflow.intent.displayName);
       switch (dialogflow.intent.displayName) {
 
         case "usuarioIngresaIdentificación": {
