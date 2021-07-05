@@ -16,10 +16,6 @@ Chatbot para whatsapp usando Nodejs, Twilio y Dialogflow 🤖📱
   <img src="https://github.com/omairapalacios/wpp-chatbot/blob/master/src/assets/chatbot-3.jpeg" width="200" title="imagen 3">
 </div>
 
-## Guías y Referencias:
-
-Curso  Avanzado VueJs - Platzi
-
 ### LICENCIA
 
 Licencia MIT Copyright (c) 2021, Omaira Palacios.
